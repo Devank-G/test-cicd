@@ -2,6 +2,7 @@
 //test
 import { useState, useEffect, useRef } from "react";
 import Chart from "chart.js/auto";
+import { sendEmail } from "./sendEmail";
 
 // Ensure Chart.js scales and elements are registered.
 Chart.register();
@@ -18,7 +19,17 @@ const Dashboard = () => {
   const memoryChartInstance = useRef(null);
   const networkChartInstance = useRef(null);
 
+  const handleSendEmail = async () => {
+    const result = await sendEmail({
+      to: "recipient@example.com",
+      subject: "Dashboard Alert",
+      htmlContent: "<p>This is a test email from the dashboard.</p>",
+    });
+    console.log(result);
+  };
+
   useEffect(() => {
+    // ... existing useEffect code remains the same
     // --- Mock WebSocket Connection Simulation ---
     // Simulate a connection delay
     setTimeout(() => {
@@ -183,15 +194,23 @@ const Dashboard = () => {
           <h1 className="text-3xl font-bold text-gray-200">
             Infrastructure Dashboard
           </h1>
-          <div className="flex items-center space-x-2 text-sm text-gray-400">
-            <span
-              className={`w-3 h-3 rounded-full animate-pulse ${
-                status === "Connected" ? "bg-green-500" : "bg-red-500"
-              }`}
-            ></span>
-            <span>
-              WebSocket: <span className="font-semibold">{status}</span>
-            </span>
+          <div className="flex items-center space-x-4 text-sm text-gray-400">
+            <button
+              onClick={handleSendEmail}
+              className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white"
+            >
+              Send Email
+            </button>
+            <div className="flex items-center space-x-2">
+              <span
+                className={`w-3 h-3 rounded-full animate-pulse ${
+                  status === "Connected" ? "bg-green-500" : "bg-red-500"
+                }`}
+              ></span>
+              <span>
+                WebSocket: <span className="font-semibold">{status}</span>
+              </span>
+            </div>
           </div>
         </header>
 
