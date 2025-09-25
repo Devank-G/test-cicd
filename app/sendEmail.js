@@ -6,7 +6,7 @@ const sesClient = new SESClient({
   region: "us-east-1",
   credentials: {
     accessKeyId: "AKIAIOSFODNN7EXAMPLE",
-    secretAccessKey:"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+    secretAccessKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
   },
 });
 
@@ -19,7 +19,7 @@ export async function sendEmail(formData) {
       .replace(/<br\s*\/?>/gi, "\n")
       .replace(/<\/p>/gi, "\n\n")
       .replace(/<\/div>/gi, "\n")
-      .replace(/<\/?[^>]+(>|$)/g, "") // strip all tags
+      .replace(/<[^>]*>/g, "") // strip all tags - fixed regex
       .replace(/\n{3,}/g, "\n\n") // reduce too many newlines
       .trim();
   }
