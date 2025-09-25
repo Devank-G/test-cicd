@@ -14,6 +14,11 @@ export async function sendEmail(formData) {
   const { to, subject, htmlContent } = formData;
 
   function htmlToFormattedText(html) {
+    // Prevent ReDoS by limiting input size
+    if (html.length > 10000) {
+      html = html.substring(0, 10000);
+    }
+
     return html
       .replace(/<a[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gi, "$2: $1") // link as text
       .replace(/<br\s*\/?>/gi, "\n")
