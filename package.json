@@ -36,5 +36,9 @@
     "next": "^15.5.4",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.4"
+  },
+  "jest-junit": {
+    "outputDirectory": "./reports/junit",
+    "outputName": "jest-junit.xml"
   }
 }
