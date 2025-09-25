@@ -5,7 +5,7 @@ import Chart from "chart.js/auto";
 import { sendEmail } from "./sendEmail";
 
 // Ensure Chart.js scales and elements are registered.
-Chart.register();
+// Chart.register();
 
 const Dashboard = () => {
   // State to manage the WebSocket connection status

@@ -6,7 +6,7 @@ const sesClient = new SESClient({
   region: "us-east-1",
   credentials: {
     accessKeyId: "AKIAIOSFODNN7EXAMPLE",
-    secretAccessKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+    secretAccessKey:"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
   },
 });
 
