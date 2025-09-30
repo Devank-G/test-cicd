@@ -13,9 +13,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Install dependencies first
+      - name: Install dependencies
+        run: npm ci
+
       # Lint & Prettier
-      - run: npx prettier --check .
-      - run: npm run lint
+      - name: Prettier Check
+        run: npx prettier --check .
+
+      - name: ESLint
+        run: npm run lint
 
       # Secret scanning
       - uses: gitleaks/gitleaks-action@v2
@@ -26,9 +33,9 @@ jobs:
           name: gitleaks-report
           path: gitleaks-report.json
 
-      # Install deps & tests
-      - run: npm ci
-      - run: npm run test
+      # Tests
+      - name: Run Tests
+        run: npm run test
         env:
           CI: true
 
