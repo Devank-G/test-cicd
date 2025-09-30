@@ -1,12 +1,12 @@
-const nextJest = require("next/jest");
+const nextJest = require('next/jest');
 
-const createJestConfig = nextJest({ dir: "./" });
+const createJestConfig = nextJest({ dir: './' });
 
 const customJestConfig = {
-  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
-  testEnvironment: "jest-environment-jsdom",
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  testEnvironment: 'jest-environment-jsdom',
   moduleNameMapper: {
-    "^chart.js/auto$": "<rootDir>/__mocks__/chart.js",
+    '^chart.js/auto$': '<rootDir>/__mocks__/chart.js',
   },
 };
 

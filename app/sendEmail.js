@@ -1,12 +1,12 @@
-"use server";
+'use server';
 
-import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
+import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
 const sesClient = new SESClient({
-  region: "us-east-1",
+  region: 'us-east-1',
   credentials: {
-    accessKeyId: "AKIAIOSFODNN7EXAMPLE",
-    secretAccessKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+    accessKeyId: 'AKIAIOSFODNN7EXAMPLE',
+    secretAccessKey: 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY',
   },
 });
 
@@ -20,12 +20,12 @@ export async function sendEmail(formData) {
     }
 
     return html
-      .replace(/<a[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gi, "$2: $1") // link as text
-      .replace(/<br\s*\/?>/gi, "\n")
-      .replace(/<\/p>/gi, "\n\n")
-      .replace(/<\/div>/gi, "\n")
-      .replace(/<[^>]*>/g, "") // strip all tags - fixed regex
-      .replace(/\n{3,}/g, "\n\n") // reduce too many newlines
+      .replace(/<a[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gi, '$2: $1') // link as text
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p>/gi, '\n\n')
+      .replace(/<\/div>/gi, '\n')
+      .replace(/<[^>]*>/g, '') // strip all tags - fixed regex
+      .replace(/\n{3,}/g, '\n\n') // reduce too many newlines
       .trim();
   }
 
@@ -36,27 +36,27 @@ export async function sendEmail(formData) {
     Message: {
       Body: {
         Html: {
-          Charset: "UTF-8",
+          Charset: 'UTF-8',
           Data: htmlContent,
         },
         Text: {
-          Charset: "UTF-8",
+          Charset: 'UTF-8',
           Data: htmlToFormattedText(htmlContent), // Convert HTML to plain text
         },
       },
       Subject: {
-        Charset: "UTF-8",
+        Charset: 'UTF-8',
         Data: subject,
       },
     },
-    Source: "buzz@techlanz.com", //  verified email
+    Source: 'buzz@techlanz.com', //  verified email
   };
 
   try {
     await sesClient.send(new SendEmailCommand(params));
     return { success: true };
   } catch (error) {
-    console.error("Error sending email:", error);
-    return { error: "Failed to send email" };
+    console.error('Error sending email:', error);
+    return { error: 'Failed to send email' };
   }
 }
