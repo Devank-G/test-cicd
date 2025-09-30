@@ -43,8 +43,8 @@ jobs:
           path: gitleaks-report.json
 
       # Run Tests
-      - name: Run Tests
-        run: npm run test
+      - name: Run Tests & Generate Coverage
+        run: npm run test:coverage
         env:
           CI: true
 
