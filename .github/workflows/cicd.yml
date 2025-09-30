@@ -1,0 +1,84 @@
+name: Next.js CI/CD
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  ci:
+    name: Lint, Prettier, Tests, Trivy
+    runs-on: ubuntu-latest
+    outputs:
+      coverage-path: reports/coverage/lcov.info
+    steps:
+      - uses: actions/checkout@v4
+
+      # Lint & Prettier
+      - run: npx prettier --check .
+      - run: npm run lint
+
+      # Secret scanning
+      - uses: gitleaks/gitleaks-action@v2
+        with:
+          args: detect --source . --report-format json --report-path gitleaks-report.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-report
+          path: gitleaks-report.json
+
+      # Install deps & tests
+      - run: npm ci
+      - run: npm run test
+        env:
+          CI: true
+
+      # Upload coverage for SonarScanner
+      - uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: reports/coverage/lcov.info
+
+      # Optional Trivy scan
+      - name: Trivy Scan
+        run: |
+          sudo dnf install -y wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo dnf update -y
+          sudo dnf install -y trivy
+          trivy fs --format json -o trivy-report.json .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.json
+
+  sonar-scan:
+    name: SonarQube Scan & Build
+    runs-on: [self-hosted, sonarqube-runner]
+    needs: ci
+    steps:
+      - uses: actions/checkout@v4
+
+      # Download coverage artifact for SonarScanner
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: reports/coverage
+
+      - run: npm ci
+
+      # Run SonarQube analysis before build
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@v3
+        with:
+          args: >
+            -Dsonar.projectKey=nextjs-app
+            -Dsonar.sources=.
+            -Dsonar.javascript.lcov.reportPaths=reports/coverage/lcov.info
+        env:
+          SONAR_HOST_URL: http://54.167.104.88:9000
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      # Optional: Build Next.js after Sonar analysis
+      - name: Build Next.js
+        run: npm run build
