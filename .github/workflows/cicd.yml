@@ -39,6 +39,12 @@ jobs:
         env:
           CI: true
 
+      - name: Upload coverage for SonarScanner
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: reports/coverage/lcov.info
+
       # Upload coverage for SonarScanner
       - uses: actions/upload-artifact@v4
         with:
