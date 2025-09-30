@@ -63,7 +63,7 @@ jobs:
 
   sonar-scan:
     name: SonarQube Scan & Build
-    runs-on: [self-hosted, sonarqube-runner]
+    runs-on: [self-hosted, sonar-runner]
     needs: ci
     steps:
       - uses: actions/checkout@v4
