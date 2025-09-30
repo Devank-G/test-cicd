@@ -56,7 +56,6 @@ jobs:
 
       - name: List uploaded artifacts
         run: ls -la reports/coverage
-    
 
   sonar-scan:
     name: SonarQube Scan & Build
