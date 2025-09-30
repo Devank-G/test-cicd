@@ -9,7 +9,7 @@ jobs:
     name: Lint, Prettier, Tests
     runs-on: ubuntu-latest
     outputs:
-      coverage-path: reports/coverage/lcov.info
+      coverage-path: reports/coverage/
     steps:
       - uses: actions/checkout@v4
 
