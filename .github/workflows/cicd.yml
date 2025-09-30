@@ -6,20 +6,29 @@ on:
 
 jobs:
   ci:
-    name: Lint, Prettier, Tests, Trivy
+    name: Lint, Prettier, Tests
     runs-on: ubuntu-latest
     outputs:
       coverage-path: reports/coverage/lcov.info
     steps:
       - uses: actions/checkout@v4
 
-      # Install dependencies first
+      # Cache node_modules
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # Install dependencies
       - name: Install dependencies
         run: npm ci
 
       # Lint & Prettier
       - name: Prettier Check
-        run: npx prettier --check .
+        run: npm run prettier:check
 
       - name: ESLint
         run: npm run lint
@@ -33,39 +42,17 @@ jobs:
           name: gitleaks-report
           path: gitleaks-report.json
 
-      # Tests
+      # Run Tests
       - name: Run Tests
         run: npm run test
         env:
           CI: true
-
-      - name: Upload coverage for SonarScanner
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: reports/coverage/lcov.info
 
       # Upload coverage for SonarScanner
       - uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: reports/coverage/lcov.info
-
-      # Optional Trivy scan
-      - name: Trivy Scan
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y wget gnupg lsb-release software-properties-common
-          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
-          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/trivy.list
-          sudo apt-get update -y
-          sudo apt-get install -y trivy
-          trivy fs --format json -o trivy-report.json .
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: trivy-report
-          path: trivy-report.json
 
   sonar-scan:
     name: SonarQube Scan & Build
@@ -74,15 +61,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Download coverage artifact for SonarScanner
+      # Download coverage artifact
       - uses: actions/download-artifact@v4
         with:
           name: coverage-report
           path: reports/coverage
 
-      - run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-      # Run SonarQube analysis before build
+      # SonarQube scan
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@v3
         with:
@@ -94,6 +82,21 @@ jobs:
           SONAR_HOST_URL: http://54.167.104.88:9000
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      # Optional: Build Next.js after Sonar analysis
+      # Build Next.js
       - name: Build Next.js
         run: npm run build
+
+      # Trivy scan of the built project
+      - name: Trivy Scan
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y wget gnupg lsb-release software-properties-common
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update -y
+          sudo apt-get install -y trivy
+          trivy fs --format json -o trivy-report.json .next
+      - uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.json
